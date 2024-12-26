@@ -154,7 +154,7 @@ func retrieveArticleForLanguage(word string, lang string) (*ArticleContent, erro
 	return article, nil
 }
 
-func retrieveArticle(word string, lang string) (*ArticleContent, error) {
+func retrieveArticle(word string) (*ArticleContent, error) {
 	res, err := retrieveArticleForLanguage(word, "en")
 
 	return res, err

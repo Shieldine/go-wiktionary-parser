@@ -164,7 +164,7 @@ func TestWrapper_Functions(t *testing.T) {
 
 	// Test retrieveArticle (English wrapper)
 	t.Run("retrieveArticle", func(t *testing.T) {
-		got, err := retrieveArticle("test", "en")
+		got, err := retrieveArticle("test")
 		if err != nil {
 			t.Errorf("retrieveArticle() error = %v", err)
 			return
