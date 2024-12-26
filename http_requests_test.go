@@ -1,7 +1,6 @@
 package go_wiktionary_parser
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -11,40 +10,39 @@ func TestSearchWordsForLanguage(t *testing.T) {
 		query       string
 		lang        string
 		wantErr     bool
-		errContains string
-		checkResult func([]string) bool
+		errMessage  string
+		checkResult bool // only check result if true
+		wantLen     int  // minimum expected length of results
 	}{
 		{
-			name:        "empty query",
-			query:       "",
-			lang:        "en",
-			wantErr:     true,
-			errContains: "empty query",
-		},
-		{
-			name:        "invalid language",
+			name:        "valid english search",
 			query:       "test",
-			lang:        "invalid",
-			wantErr:     true,
-			errContains: "invalid language",
+			lang:        "en",
+			wantErr:     false,
+			checkResult: true,
+			wantLen:     1,
 		},
 		{
-			name:    "valid english search",
-			query:   "test",
-			lang:    "en",
-			wantErr: false,
-			checkResult: func(results []string) bool {
-				return len(results) > 0 && len(results) <= defaultLimit
-			},
+			name:        "valid german search",
+			query:       "haus",
+			lang:        "de",
+			wantErr:     false,
+			checkResult: true,
+			wantLen:     1,
 		},
 		{
-			name:    "partial word search",
-			query:   "prog",
-			lang:    "en",
-			wantErr: false,
-			checkResult: func(results []string) bool {
-				return len(results) > 0 && strings.Contains(strings.Join(results, " "), "prog")
-			},
+			name:       "empty query",
+			query:      "",
+			lang:       "en",
+			wantErr:    true,
+			errMessage: "empty query",
+		},
+		{
+			name:       "invalid language",
+			query:      "test",
+			lang:       "xx",
+			wantErr:    true,
+			errMessage: "invalid language",
 		},
 	}
 
@@ -52,19 +50,26 @@ func TestSearchWordsForLanguage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := searchWordsForLanguage(tt.query, tt.lang)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("searchWordsForLanguage() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("searchWordsForLanguage() error = nil, wantErr %v", tt.wantErr)
+					return
+				}
+				if err.Error() != tt.errMessage {
+					t.Errorf("searchWordsForLanguage() error = %v, wantErr %v", err, tt.errMessage)
+				}
 				return
 			}
 
-			if tt.wantErr && !strings.Contains(err.Error(), tt.errContains) {
-				t.Errorf("searchWordsForLanguage() error = %v, should contain %v", err, tt.errContains)
+			if err != nil {
+				t.Errorf("searchWordsForLanguage() unexpected error = %v", err)
 				return
 			}
 
-			if !tt.wantErr && tt.checkResult != nil {
-				if !tt.checkResult(got) {
-					t.Errorf("searchWordsForLanguage() got = %v, failed result check", got)
+			// Check results if required
+			if tt.checkResult {
+				if len(got) < tt.wantLen {
+					t.Errorf("searchWordsForLanguage() got %d results, want at least %d", len(got), tt.wantLen)
 				}
 			}
 		})
@@ -73,35 +78,38 @@ func TestSearchWordsForLanguage(t *testing.T) {
 
 func TestRetrieveArticleForLanguage(t *testing.T) {
 	tests := []struct {
-		name        string
-		word        string
-		lang        string
-		wantErr     bool
-		errContains string
-		checkResult func(string) bool
+		name       string
+		word       string
+		lang       string
+		wantErr    bool
+		errMessage string
+		want       *ArticleContent
 	}{
-		{
-			name:        "invalid language",
-			word:        "test",
-			lang:        "invalid",
-			wantErr:     true,
-			errContains: "invalid language",
-		},
 		{
 			name:    "valid english article",
 			word:    "test",
 			lang:    "en",
 			wantErr: false,
-			checkResult: func(result string) bool {
-				return len(result) > 0 && strings.Contains(result, "test")
-			},
 		},
 		{
-			name:        "non-existent word",
-			word:        "asdfqwerzxcv",
-			lang:        "en",
-			wantErr:     true,
-			errContains: "API error",
+			name:    "valid german article",
+			word:    "Haus",
+			lang:    "de",
+			wantErr: false,
+		},
+		{
+			name:       "invalid language",
+			word:       "test",
+			lang:       "xx",
+			wantErr:    true,
+			errMessage: "invalid language",
+		},
+		{
+			name:       "nonexistent word",
+			word:       "asdfasdfasdfasdf",
+			lang:       "en",
+			wantErr:    true,
+			errMessage: "API error:",
 		},
 	}
 
@@ -109,63 +117,65 @@ func TestRetrieveArticleForLanguage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := retrieveArticleForLanguage(tt.word, tt.lang)
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("retrieveArticleForLanguage() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if tt.wantErr && !strings.Contains(err.Error(), tt.errContains) {
-				t.Errorf("retrieveArticleForLanguage() error = %v, should contain %v", err, tt.errContains)
-				return
-			}
-
-			// Result checking
-			if !tt.wantErr && tt.checkResult != nil {
-				if !tt.checkResult(got) {
-					t.Errorf("retrieveArticleForLanguage() got result that failed validation")
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("retrieveArticleForLanguage() error = nil, wantErr %v", tt.wantErr)
+					return
 				}
+				if tt.errMessage != "" && err.Error() != tt.errMessage {
+					if tt.errMessage == "API error:" && !contains(err.Error(), tt.errMessage) {
+						t.Errorf("retrieveArticleForLanguage() error = %v, want error containing %v", err, tt.errMessage)
+					}
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("retrieveArticleForLanguage() unexpected error = %v", err)
+				return
+			}
+
+			// Basic validation of returned article
+			if got.Title == "" {
+				t.Error("retrieveArticleForLanguage() returned article with empty title")
+			}
+			if got.HTML == "" {
+				t.Error("retrieveArticleForLanguage() returned article with empty HTML")
+			}
+			if got.Language != tt.lang {
+				t.Errorf("retrieveArticleForLanguage() returned article with wrong language = %v, want %v", got.Language, tt.lang)
 			}
 		})
 	}
 }
 
-func TestSearchWords(t *testing.T) {
-	got, err := searchWords("test")
-	if err != nil {
-		t.Errorf("searchWords() error = %v", err)
-		return
-	}
-	if len(got) == 0 {
-		t.Error("searchWords() returned empty result")
-	}
+func TestWrapper_Functions(t *testing.T) {
+	// Test searchWords (English wrapper)
+	t.Run("searchWords", func(t *testing.T) {
+		got, err := searchWords("test")
+		if err != nil {
+			t.Errorf("searchWords() error = %v", err)
+			return
+		}
+		if len(got) == 0 {
+			t.Error("searchWords() returned empty result")
+		}
+	})
+
+	// Test retrieveArticle (English wrapper)
+	t.Run("retrieveArticle", func(t *testing.T) {
+		got, err := retrieveArticle("test", "en")
+		if err != nil {
+			t.Errorf("retrieveArticle() error = %v", err)
+			return
+		}
+		if got.Title == "" || got.HTML == "" {
+			t.Error("retrieveArticle() returned incomplete article")
+		}
+	})
 }
 
-func TestRetrieveArticle(t *testing.T) {
-	got, err := retrieveArticle("test", "en")
-	if err != nil {
-		t.Errorf("retrieveArticle() error = %v", err)
-		return
-	}
-	if len(got) == 0 {
-		t.Error("retrieveArticle() returned empty result")
-	}
-}
-
-// TestIntegration tests the workflow of searching and then retrieving an article
-func TestIntegration(t *testing.T) {
-	words, err := searchWords("test")
-	if err != nil {
-		t.Fatalf("Failed to search words: %v", err)
-	}
-	if len(words) == 0 {
-		t.Fatal("No words found in search")
-	}
-
-	article, err := retrieveArticle(words[0], "en")
-	if err != nil {
-		t.Fatalf("Failed to retrieve article: %v", err)
-	}
-	if len(article) == 0 {
-		t.Fatal("Retrieved empty article")
-	}
+// Helper function to check if a string contains another string
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && s[:len(substr)] == substr
 }

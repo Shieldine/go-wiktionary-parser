@@ -95,16 +95,16 @@ func searchWords(query string) ([]string, error) {
 	return res, err
 }
 
-func retrieveArticleForLanguage(word string, lang string) (string, error) {
+func retrieveArticleForLanguage(word string, lang string) (*ArticleContent, error) {
 	language := Language(lang)
 
 	if !language.IsValid() {
-		return "", errors.New("invalid language")
+		return nil, errors.New("invalid language")
 	}
 
 	baseURL, err := url.Parse(fmt.Sprintf("https://%s.wiktionary.org/w/api.php", lang))
 	if err != nil {
-		return "", fmt.Errorf("error parsing URL: %v", err)
+		return nil, fmt.Errorf("error parsing URL: %v", err)
 	}
 
 	params := url.Values{}
@@ -118,7 +118,7 @@ func retrieveArticleForLanguage(word string, lang string) (string, error) {
 
 	resp, err := client.Get(baseURL.String())
 	if err != nil {
-		return "", fmt.Errorf("error making request: %v", err)
+		return nil, fmt.Errorf("error making request: %v", err)
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -127,28 +127,34 @@ func retrieveArticleForLanguage(word string, lang string) (string, error) {
 		}
 	}(resp.Body)
 
-	var result struct {
-		Parse struct {
-			Title string `json:"title"`
-			Text  string `json:"text"`
-		} `json:"parse"`
-		Error struct {
-			Info string `json:"info"`
-		} `json:"error"`
+	var parseResp ParseResponse
+	if err := json.NewDecoder(resp.Body).Decode(&parseResp); err != nil {
+		return nil, fmt.Errorf("error decoding response: %v", err)
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("error decoding response: %v", err)
+	if parseResp.Error.Info != "" {
+		return nil, fmt.Errorf("API error: %s", parseResp.Error.Info)
 	}
 
-	if result.Error.Info != "" {
-		return "", fmt.Errorf("API error: %s", result.Error.Info)
+	article := &ArticleContent{
+		Title:    parseResp.Parse.Title,
+		HTML:     parseResp.Parse.Text,
+		Language: lang,
+		Sections: make([]Section, len(parseResp.Parse.Sections)),
 	}
 
-	return result.Parse.Text, nil
+	for i, s := range parseResp.Parse.Sections {
+		article.Sections[i] = Section{
+			Title:  s.Title,
+			Level:  s.Level,
+			Anchor: s.Anchor,
+		}
+	}
+
+	return article, nil
 }
 
-func retrieveArticle(word string, lang string) (string, error) {
+func retrieveArticle(word string, lang string) (*ArticleContent, error) {
 	res, err := retrieveArticleForLanguage(word, "en")
 
 	return res, err
