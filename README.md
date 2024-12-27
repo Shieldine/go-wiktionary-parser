@@ -76,8 +76,8 @@ func main() {
 		// this is the whole object of type ArticleContent
 		// fmt.Println(parsed)
 
-		// and this is the parsed info
-		fmt.Println(parsed.WordInfo)
+		// and this is the parsed info - you need to cast it as it is defined as an interface
+		fmt.Println(parsed.WordInfo.(*parser.GermanWordInfo))
 	}
 
 	// and now some fine-grained examples
