@@ -140,15 +140,6 @@ func RetrieveArticleForLanguage(word string, lang string) (*ArticleContent, erro
 		Title:    parseResp.Parse.Title,
 		HTML:     parseResp.Parse.Text,
 		Language: lang,
-		Sections: make([]Section, len(parseResp.Parse.Sections)),
-	}
-
-	for i, s := range parseResp.Parse.Sections {
-		article.Sections[i] = Section{
-			Title:  s.Title,
-			Level:  s.Level,
-			Anchor: s.Anchor,
-		}
 	}
 
 	return article, nil

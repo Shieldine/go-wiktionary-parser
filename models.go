@@ -2,16 +2,9 @@ package go_wiktionary_parser
 
 type ParseResponse struct {
 	Parse struct {
-		Title    string `json:"title"`
-		PageID   int    `json:"pageid"`
-		Text     string `json:"text"`
-		Sections []struct {
-			Title  string `json:"line"`
-			Index  string `json:"index"`
-			Level  string `json:"level"`
-			Number string `json:"number"`
-			Anchor string `json:"anchor"`
-		} `json:"sections"`
+		Title  string `json:"title"`
+		PageID int    `json:"pageid"`
+		Text   string `json:"text"`
 	} `json:"parse"`
 	Error struct {
 		Code string `json:"code"`
@@ -20,17 +13,10 @@ type ParseResponse struct {
 }
 
 type ArticleContent struct {
-	Title    string    `json:"title"`
-	HTML     string    `json:"html"`
-	Language string    `json:"language"`
-	Sections []Section `json:"sections"`
-	WordInfo WordInfo  `json:"word_info,omitempty"`
-}
-
-type Section struct {
-	Title  string `json:"title"`
-	Level  string `json:"level"`
-	Anchor string `json:"anchor"`
+	Title    string   `json:"title"`
+	HTML     string   `json:"html"`
+	Language string   `json:"language"`
+	WordInfo WordInfo `json:"word_info,omitempty"`
 }
 
 type WordInfo interface{}
