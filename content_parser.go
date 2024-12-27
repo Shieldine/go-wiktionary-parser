@@ -36,8 +36,11 @@ func ParseArticle(article *ArticleContent, lang string) (WordInfo, error) {
 		}
 		return &parsed, nil
 	case English:
-		parseEnglish(article)
-		return nil, nil
+		parsed, err := parseEnglish(article)
+		if err != nil {
+			return nil, err
+		}
+		return parsed, nil
 	default:
 		return nil, errors.New("invalid language")
 	}

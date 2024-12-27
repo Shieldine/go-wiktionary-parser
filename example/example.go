@@ -12,7 +12,7 @@ func main() {
 		fmt.Println(err)
 	} else {
 		// this is the whole object of type ArticleContent
-		fmt.Println(parsed)
+		// fmt.Println(parsed)
 
 		// and this is the parsed info
 		fmt.Println(parsed.WordInfo)
@@ -41,21 +41,27 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(articleRes)
+		// fmt.Println(articleRes)
+		fmt.Println(articleRes.Title)
 	}
 
 	// you can default to English here as well
-	englishArticle, err := parser.RetrieveArticle("Tree")
+	englishArticle, err := parser.RetrieveArticle("tree")
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(englishArticle)
+		// fmt.Println(englishArticle)
+		fmt.Println(englishArticle.Title)
 	}
 
 	// and here's the parsed info
-	parsedInfo, _ := parser.ParseArticle(englishArticle, "en")
+	parsedInfo, err := parser.ParseArticle(englishArticle, "en")
 
-	fmt.Println(parsedInfo)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(parsedInfo)
+	}
 
 	// you can add it to your ArticleContent
 	englishArticle.WordInfo = parsedInfo
