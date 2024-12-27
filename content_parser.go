@@ -144,6 +144,69 @@ func parseGerman(content *ArticleContent) (*GermanWordInfo, error) {
 	return &info, nil
 }
 
-func parseEnglish(content *ArticleContent) {
+func parseEnglish(content *ArticleContent) (*EnglishWordInfo, error) {
+	htmlContent := content.HTML
 
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
+	if err != nil {
+		return nil, err
+	}
+
+	var info EnglishWordInfo
+	info.Word = content.Title
+
+	// plural form
+	iPlural := doc.Find("i:contains('plural')").First()
+	if iPlural.Length() > 0 {
+		iPlural.NextAll().Filter("b").Each(func(_ int, bSel *goquery.Selection) {
+			formText := strings.TrimSpace(bSel.Text())
+			if formText != "" {
+				info.Plural += formText + " "
+			}
+		})
+	}
+
+	// etymology
+	etyHeading := doc.Find(`h3#Etymology`).First()
+	if etyHeading.Length() > 0 {
+
+		etyParagraph := etyHeading.
+			Parent().
+			NextAll().
+			Filter("p").
+			First()
+
+		if etyParagraph.Length() > 0 {
+			etymologyText := strings.TrimSpace(etyParagraph.Text())
+
+			info.Etymology = etymologyText
+		}
+
+	}
+
+	// definitions
+	pWithHeadword := doc.Find(`p:has(span.headword-line)`).First()
+	if pWithHeadword.Length() > 0 {
+
+		defsOl := pWithHeadword.NextAll().Filter("ol").First()
+		if defsOl.Length() > 0 {
+
+			defsOl.Find("li").Each(func(i int, liSel *goquery.Selection) {
+				if goquery.NodeName(liSel.Parent()) == "ol" {
+
+					clonedLi := liSel.Clone()
+
+					clonedLi.Find("ul").Remove()
+					rawText := strings.TrimSpace(clonedLi.Text())
+					rawText = strings.Join(strings.Fields(rawText), " ")
+
+					info.Definitions = append(info.Definitions, rawText)
+				} else {
+					return
+				}
+			})
+		}
+	}
+
+	return &info, nil
 }

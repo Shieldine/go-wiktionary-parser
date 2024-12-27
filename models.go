@@ -34,15 +34,8 @@ type GermanWordInfo struct {
 }
 
 type EnglishWordInfo struct {
-	Word        string // The main word being described
-	Etymology   string // Origin of the word and historical development
-	Definitions []struct {
-		Definition string   // A specific meaning of the word
-		Examples   []string // Example sentences or usage cases
-	}
-	Synonyms     []string // Words with similar meanings
-	DerivedTerms []string // Words derived from this word
-	Hypernyms    []string // Broader terms
-	Hyponyms     []string // Narrower or more specific terms
-	Anagrams     []string // Words formed by rearranging the letters
+	Word        string   `json:"word"`        // The main word being described
+	Plural      string   `json:"plural"`      // The plural form of the word
+	Etymology   string   `json:"etymology"`   // Origin of the word and historical development
+	Definitions []string `json:"definitions"` // List of definitions or meanings of the word.
 }
