@@ -34,7 +34,7 @@ func ParseArticle(article *ArticleContent, lang string) (WordInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &parsed, nil
+		return parsed, nil
 	case English:
 		parsed, err := parseEnglish(article)
 		if err != nil {
