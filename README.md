@@ -7,6 +7,8 @@ A package of useful functions to deal with Wiktionary articles
 > This will likely change in the future. Check [the development section](#development-and-contribution) for current
 > plans.
 
+Also, the code probably needs a refactor here and there... It'll happen at some point :)
+
 ## Quickstart
 There isn't much, so I'll be brief.
 

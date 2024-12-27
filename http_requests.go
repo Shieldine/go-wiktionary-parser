@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -54,7 +53,7 @@ func SearchWordsForLanguage(query string, lang string) ([]string, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Fatalf("failed to close response body: %v", err)
+			fmt.Errorf("error while closing body: %v", err)
 		}
 	}(resp.Body)
 
@@ -120,10 +119,11 @@ func RetrieveArticleForLanguage(word string, lang string) (*ArticleContent, erro
 	if err != nil {
 		return nil, fmt.Errorf("error making request: %v", err)
 	}
+
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Fatalf("failed to close response body: %v", err)
+			fmt.Errorf("error while closing body: %v", err)
 		}
 	}(resp.Body)
 
