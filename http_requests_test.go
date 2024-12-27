@@ -48,28 +48,28 @@ func TestSearchWordsForLanguage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := searchWordsForLanguage(tt.query, tt.lang)
+			got, err := SearchWordsForLanguage(tt.query, tt.lang)
 
 			if tt.wantErr {
 				if err == nil {
-					t.Errorf("searchWordsForLanguage() error = nil, wantErr %v", tt.wantErr)
+					t.Errorf("SearchWordsForLanguage() error = nil, wantErr %v", tt.wantErr)
 					return
 				}
 				if err.Error() != tt.errMessage {
-					t.Errorf("searchWordsForLanguage() error = %v, wantErr %v", err, tt.errMessage)
+					t.Errorf("SearchWordsForLanguage() error = %v, wantErr %v", err, tt.errMessage)
 				}
 				return
 			}
 
 			if err != nil {
-				t.Errorf("searchWordsForLanguage() unexpected error = %v", err)
+				t.Errorf("SearchWordsForLanguage() unexpected error = %v", err)
 				return
 			}
 
 			// Check results if required
 			if tt.checkResult {
 				if len(got) < tt.wantLen {
-					t.Errorf("searchWordsForLanguage() got %d results, want at least %d", len(got), tt.wantLen)
+					t.Errorf("SearchWordsForLanguage() got %d results, want at least %d", len(got), tt.wantLen)
 				}
 			}
 		})
@@ -115,62 +115,62 @@ func TestRetrieveArticleForLanguage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := retrieveArticleForLanguage(tt.word, tt.lang)
+			got, err := RetrieveArticleForLanguage(tt.word, tt.lang)
 
 			if tt.wantErr {
 				if err == nil {
-					t.Errorf("retrieveArticleForLanguage() error = nil, wantErr %v", tt.wantErr)
+					t.Errorf("RetrieveArticleForLanguage() error = nil, wantErr %v", tt.wantErr)
 					return
 				}
 				if tt.errMessage != "" && err.Error() != tt.errMessage {
 					if tt.errMessage == "API error:" && !contains(err.Error(), tt.errMessage) {
-						t.Errorf("retrieveArticleForLanguage() error = %v, want error containing %v", err, tt.errMessage)
+						t.Errorf("RetrieveArticleForLanguage() error = %v, want error containing %v", err, tt.errMessage)
 					}
 				}
 				return
 			}
 
 			if err != nil {
-				t.Errorf("retrieveArticleForLanguage() unexpected error = %v", err)
+				t.Errorf("RetrieveArticleForLanguage() unexpected error = %v", err)
 				return
 			}
 
 			// Basic validation of returned article
 			if got.Title == "" {
-				t.Error("retrieveArticleForLanguage() returned article with empty title")
+				t.Error("RetrieveArticleForLanguage() returned article with empty title")
 			}
 			if got.HTML == "" {
-				t.Error("retrieveArticleForLanguage() returned article with empty HTML")
+				t.Error("RetrieveArticleForLanguage() returned article with empty HTML")
 			}
 			if got.Language != tt.lang {
-				t.Errorf("retrieveArticleForLanguage() returned article with wrong language = %v, want %v", got.Language, tt.lang)
+				t.Errorf("RetrieveArticleForLanguage() returned article with wrong language = %v, want %v", got.Language, tt.lang)
 			}
 		})
 	}
 }
 
 func TestWrapper_Functions(t *testing.T) {
-	// Test searchWords (English wrapper)
-	t.Run("searchWords", func(t *testing.T) {
-		got, err := searchWords("test")
+	// Test SearchWords (English wrapper)
+	t.Run("SearchWords", func(t *testing.T) {
+		got, err := SearchWords("test")
 		if err != nil {
-			t.Errorf("searchWords() error = %v", err)
+			t.Errorf("SearchWords() error = %v", err)
 			return
 		}
 		if len(got) == 0 {
-			t.Error("searchWords() returned empty result")
+			t.Error("SearchWords() returned empty result")
 		}
 	})
 
-	// Test retrieveArticle (English wrapper)
-	t.Run("retrieveArticle", func(t *testing.T) {
-		got, err := retrieveArticle("test")
+	// Test RetrieveArticle (English wrapper)
+	t.Run("RetrieveArticle", func(t *testing.T) {
+		got, err := RetrieveArticle("test")
 		if err != nil {
-			t.Errorf("retrieveArticle() error = %v", err)
+			t.Errorf("RetrieveArticle() error = %v", err)
 			return
 		}
 		if got.Title == "" || got.HTML == "" {
-			t.Error("retrieveArticle() returned incomplete article")
+			t.Error("RetrieveArticle() returned incomplete article")
 		}
 	})
 }

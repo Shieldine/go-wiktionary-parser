@@ -21,7 +21,7 @@ const (
 	apiURLFormat = "https://%s.wiktionary.org/w/api.php"
 )
 
-func searchWordsForLanguage(query string, lang string) ([]string, error) {
+func SearchWordsForLanguage(query string, lang string) ([]string, error) {
 	if query == "" {
 		return nil, errors.New("empty query")
 	}
@@ -89,13 +89,13 @@ func searchWordsForLanguage(query string, lang string) ([]string, error) {
 	return words, nil
 }
 
-func searchWords(query string) ([]string, error) {
-	res, err := searchWordsForLanguage(query, "en")
+func SearchWords(query string) ([]string, error) {
+	res, err := SearchWordsForLanguage(query, "en")
 
 	return res, err
 }
 
-func retrieveArticleForLanguage(word string, lang string) (*ArticleContent, error) {
+func RetrieveArticleForLanguage(word string, lang string) (*ArticleContent, error) {
 	language := Language(lang)
 
 	if !language.IsValid() {
@@ -154,8 +154,8 @@ func retrieveArticleForLanguage(word string, lang string) (*ArticleContent, erro
 	return article, nil
 }
 
-func retrieveArticle(word string) (*ArticleContent, error) {
-	res, err := retrieveArticleForLanguage(word, "en")
+func RetrieveArticle(word string) (*ArticleContent, error) {
+	res, err := RetrieveArticleForLanguage(word, "en")
 
 	return res, err
 }
