@@ -12,7 +12,7 @@ func FetchAndParseArticleForWord(word string, lang string) (*ArticleContent, err
 		return nil, err
 	}
 
-	parsed, err := ParseArticleForWord(article, lang)
+	parsed, err := ParseArticle(article, lang)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func FetchAndParseArticleForWord(word string, lang string) (*ArticleContent, err
 	return article, nil
 }
 
-func ParseArticleForWord(article *ArticleContent, lang string) (WordInfo, error) {
+func ParseArticle(article *ArticleContent, lang string) (WordInfo, error) {
 	l := Language(lang)
 	if !l.IsValid() {
 		return nil, errors.New("invalid language")
