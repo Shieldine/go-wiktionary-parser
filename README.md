@@ -133,16 +133,16 @@ func main() {
 ## Supported languages
 The supported languages are:
 
-> English (en.wiktionary.org)
-> German (de.wiktionary.org)
+- English (en.wiktionary.org)
+- German (de.wiktionary.org)
 
 ## Development and contribution
 This project is in occasional development (I sadly don't have as much time as I'd like to).
 
 Current plans:
-> Parse all polysemes of a word instead of the first one
-> Parse further sections (currently, only a few get parsed)
-> Add support for other Wiktionaries (pl, it, fr)
+- Parse all polysemes of a word instead of the first one
+- Parse further sections (currently, only a few get parsed)
+- Add support for other Wiktionaries (pl, it, fr)
 
 If you want to contribute, feel free to create issues and merge requests.
 
