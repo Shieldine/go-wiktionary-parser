@@ -20,11 +20,11 @@ type ParseResponse struct {
 }
 
 type ArticleContent struct {
-	Title           string          `json:"title"`
-	HTML            string          `json:"html"`
-	Language        string          `json:"language"`
-	Sections        []Section       `json:"sections"`
-	GrammaticalInfo GrammaticalInfo `json:"grammatical_info,omitempty"`
+	Title    string    `json:"title"`
+	HTML     string    `json:"html"`
+	Language string    `json:"language"`
+	Sections []Section `json:"sections"`
+	WordInfo WordInfo  `json:"word_info,omitempty"`
 }
 
 type Section struct {
@@ -33,23 +33,30 @@ type Section struct {
 	Anchor string `json:"anchor"`
 }
 
-type GrammaticalInfo interface {
-	GetWordClass() string
+type WordInfo interface{}
+
+type GermanWordInfo struct {
+	Word                string   `json:"word"`                 // The word being defined (e.g., "Baum").
+	GrammaticalCategory string   `json:"grammatical_category"` // The grammatical category (e.g., noun).
+	Gender              string   `json:"gender"`               // The grammatical gender of the word (e.g., masculine).
+	Singular            string   `json:"singular"`             // The singular form of the word.
+	Plural              string   `json:"plural"`               // The plural form of the word.
+	Definitions         []string `json:"definitions"`          // List of definitions or meanings of the word.
+	Etymology           string   `json:"etymology"`            // Historical origin and linguistic evolution of the word.
+	Examples            []string `json:"examples"`             // Usage examples
+	Phrases             []string `json:"phrases"`              // Phrases used in everyday speech
 }
 
-type GermanGrammaticalInfo struct {
-	Genus     string   `json:"genus,omitempty"`
-	Plural    string   `json:"plural,omitempty"`
-	Article   string   `json:"article,omitempty"`
-	Cases     []string `json:"cases,omitempty"`
-	WordClass string   `json:"word_class,omitempty"`
-}
-
-type EnglishGrammaticalInfo struct {
-	WordClass   string   `json:"word_class,omitempty"`
-	Plural      string   `json:"plural,omitempty"`
-	Participles []string `json:"participles,omitempty"`
-	Comparative string   `json:"comparative,omitempty"`
-	Superlative string   `json:"superlative,omitempty"`
-	Countable   *bool    `json:"countable,omitempty"`
+type EnglishWordInfo struct {
+	Word        string // The main word being described
+	Etymology   string // Origin of the word and historical development
+	Definitions []struct {
+		Definition string   // A specific meaning of the word
+		Examples   []string // Example sentences or usage cases
+	}
+	Synonyms     []string // Words with similar meanings
+	DerivedTerms []string // Words derived from this word
+	Hypernyms    []string // Broader terms
+	Hyponyms     []string // Narrower or more specific terms
+	Anagrams     []string // Words formed by rearranging the letters
 }
